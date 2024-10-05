@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mod
+  application="Heroes of Newerth"
+  app_version="*"
+  mm_version="*"
+  name="คำแนะนำสถิติด่วนอันดับ"
+  version="0.1"
+  date="2021-03-21"
+  description="เปิดใช้งานคำแนะนำด่วนเพื่อแสดงข้อมูลอันดับฤดูกาลปัจจุบันเมื่อเลื่อนเมาส์ไปเหนือข้อมูล ซึ่งชวนให้นึกถึงอินเทอร์เฟซหลักแบบเก่าที่เรียกว่า game_lobby UI"
+  author="MrHappyAsthma"
+  web_link="https://github.com/mrhappyasthma/HoN-Ranked-Quickstats-Tooltips-Mod"
+  update_check_url="https://raw.githubusercontent.com/mrhappyasthma/HoN-Ranked-Quickstats-Tooltips-Mod/master/version.txt"
+  update_download_url="https://github.com/mrhappyasthma/HoN-Ranked-Quickstats-Tooltips-Mod/releases/latest/download/ranked_quickstats_tooltips.honmod"
+>
+
+  <!-- การปรับเปลี่ยน Lua -->
+  <modify file="ui/scripts/newui/player_stats_v2.lua">
+    <search><![CDATA[function Player_Stats_V2:Show(nickName)]]></search>
+    <insert position="before"><![CDATA[
+        _currentNickName = nickName
+        _lockedNickNames = _lockedNickNames or {}
+        
+        function OnKeyPress(key)
+            if key == "S" then
+                Player_Stats_V2:ToggleLock()
+            end
+        end
+
+        function Player_Stats_V2:ToggleLock()
+            if _lockedNickNames[_currentNickName] == nil then
+                _lockedNickNames[_currentNickName] = true
+                println('^gล็อกขา: ' .. _currentNickName)
+            else
+                _lockedNickNames[_currentNickName] = nil
+                println('^rปลดล็อกขา: ' .. _currentNickName)
+            end
+        end
+    ]]></insert>
+  </modify>
+
+  <!-- ปรับเปลี่ยน UI -->
+  <modify file="ui/fe2/newui/lobby_v2.package">
+    <search><![CDATA[<template name="lobby_large_player_template">]]></search>
+    <insert position="before"><![CDATA[
+        <!-- ปุ่มล็อกขา -->
+        <template name="LockStatsButton">
+            <button width="100" height="30" ontrigger="Player_Stats_V2:ToggleLock()">
+                <label text="ล็อกขา" />
+            </button>
+        </template>
+    ]]></insert>
+  </modify>
+
+</mod>
